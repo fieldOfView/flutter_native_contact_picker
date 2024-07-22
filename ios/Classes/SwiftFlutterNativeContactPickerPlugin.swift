@@ -29,7 +29,7 @@ class SinglePickerHandler: PickerHandler {
         let numbers: Array<String> = contact.phoneNumbers.compactMap { $0.value.stringValue as String }
         data["phoneNumbers"] = numbers
 
-        let emails: Array<String> = contact.emailAddresses.compactMap { $0.value.stringValue as String }
+        let emails: Array<String> = contact.emailAddresses.compactMap { $0.value as String }
         data["emailAddresses"] = emails
 
         result(data)
@@ -48,7 +48,7 @@ class MultiPickerHandler: PickerHandler {
              let numbers: [String] = contact.phoneNumbers.compactMap { $0.value.stringValue as String }
              contactInfo["phoneNumbers"] = numbers
 
-             let emails: [String] = contact.emailAddresses.compactMap { $0.value.stringValue as String }
+             let emails: [String] = contact.emailAddresses.compactMap { $0.value as String }
              contactInfo["emailAddresses"] = emails
 
              selectedContacts.append(contactInfo)
