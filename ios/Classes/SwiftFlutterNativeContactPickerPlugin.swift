@@ -6,13 +6,13 @@ import ContactsUI
 
 class PickerHandler: NSObject, CNContactPickerDelegate  {
     var result: FlutterResult;
-    
+
     required init(result: @escaping FlutterResult) {
         self.result = result
         super.init()
     }
-    
-    
+
+
     @available(iOS 9.0, *)
     public func contactPickerDidCancel(_ picker: CNContactPickerViewController) {
         result(nil)
@@ -29,6 +29,9 @@ class SinglePickerHandler: PickerHandler {
         let numbers: Array<String> = contact.phoneNumbers.compactMap { $0.value.stringValue as String }
         data["phoneNumbers"] = numbers
 
+        let emails: Array<String> = contact.emailAddresses.compactMap { $0.value.stringValue as String }
+        data["emailAddresses"] = emails
+
         result(data)
     }
 }
@@ -44,6 +47,9 @@ class MultiPickerHandler: PickerHandler {
 
              let numbers: [String] = contact.phoneNumbers.compactMap { $0.value.stringValue as String }
              contactInfo["phoneNumbers"] = numbers
+
+             let emails: [String] = contact.emailAddresses.compactMap { $0.value.stringValue as String }
+             contactInfo["emailAddresses"] = emails
 
              selectedContacts.append(contactInfo)
          }
@@ -75,8 +81,8 @@ var _delegate: PickerHandler?;
               _delegate = single ? SinglePickerHandler(result: result) : MultiPickerHandler(result: result);
               let contactPicker = CNContactPickerViewController()
               contactPicker.delegate = _delegate
-              contactPicker.displayedPropertyKeys = [CNContactPhoneNumbersKey]
-              
+              contactPicker.displayedPropertyKeys = [CNContactPhoneNumbersKey, CNContactEmailAddressesKey]
+
               // find proper keyWindow
               var keyWindow: UIWindow? = nil
               if #available(iOS 13, *) {
@@ -87,7 +93,7 @@ var _delegate: PickerHandler?;
               } else {
                   keyWindow = UIApplication.shared.keyWindow
               }
-              
+
               let viewController = keyWindow?.rootViewController
               viewController?.present(contactPicker, animated: true, completion: nil)
           }

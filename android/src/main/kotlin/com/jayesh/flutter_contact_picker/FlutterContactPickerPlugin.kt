@@ -11,6 +11,7 @@ import android.app.Activity
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.provider.ContactsContract
+import android.net.Uri
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.PluginRegistry
@@ -52,7 +53,7 @@ public class FlutterContactPickerPlugin: FlutterPlugin, MethodCallHandler,
       }
       pendingResult = result
 
-      val i = Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI)
+      val i = Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI)
       activity?.startActivityForResult(i, PICK_CONTACT)
     } else {
       result.notImplemented()
@@ -101,14 +102,36 @@ public class FlutterContactPickerPlugin: FlutterPlugin, MethodCallHandler,
        // val phoneType = it.getInt(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE))
        // val customLabel = it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.LABEL))
        // val label = ContactsContract.CommonDataKinds.Email.getTypeLabel(activity!!.resources, phoneType, customLabel) as String
-        val number = it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+
+        val contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+
+        val numbers = ArrayList<String>()
+        val contactNumbers = activity!!.contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null,ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactId, null, null);
+        while (contactNumbers.moveToNext())
+        {
+            numbers.add(contactNumbers.getString(contactNumbers.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
+        }
+        contactNumbers.close();
+
+        val emails = ArrayList<String>()
+        val contactEmails = activity!!.contentResolver.query(ContactsContract.CommonDataKinds.Email.CONTENT_URI,null,ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = " + contactId, null, null);
+        while (contactEmails.moveToNext())
+        {
+            emails.add(contactEmails.getString(contactEmails.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA)));
+        }
+        contactEmails.close();
+
+        //val number = it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+        //val email = it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA))
+
         val fullName = it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
        // val phoneNumber = HashMap<String, Any>()
        // phoneNumber.put("number", number)
        // phoneNumber.put("label", label)
         val contact = HashMap<String, Any>()
         contact.put("fullName", fullName)
-        contact.put("phoneNumbers", listOf(number))
+        contact.put("phoneNumbers", numbers)
+        contact.put("emailAddresses", emails)
         pendingResult?.success(contact)
         pendingResult = null
         return@use true

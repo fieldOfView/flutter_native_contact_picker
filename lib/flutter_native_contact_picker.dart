@@ -26,12 +26,13 @@ class FlutterContactPicker {
 
 /// Represents a contact selected by the user.
 class Contact {
-  Contact({this.fullName, this.phoneNumbers});
+  Contact({this.fullName, this.phoneNumbers, this.emailAddresses});
 
   factory Contact.fromMap(Map<dynamic, dynamic> map) => new Contact(
       fullName: map['fullName'],
       // phoneNumber: new PhoneNumber.fromMap(map['phoneNumber']));
-      phoneNumbers: map['phoneNumbers'].cast<String>());
+      phoneNumbers: map['phoneNumbers'].cast<String>(),
+      emailAddresses: map['emailAddresses'].cast<String>());
 
   /// The full name of the contact, e.g. "Jayesh Pansheriya".
   final String? fullName;
@@ -39,9 +40,10 @@ class Contact {
   /// The phone number of the contact.
   // final PhoneNumber phoneNumber;
   final List<String>? phoneNumbers;
+  final List<String>? emailAddresses;
 
   @override
-  String toString() => '$fullName: $phoneNumbers';
+  String toString() => '$fullName: $phoneNumbers, $emailAddresses';
 }
 
 /// Represents a phone number selected by the user.
